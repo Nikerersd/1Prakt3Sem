@@ -1,91 +1,108 @@
+#include <iostream>
 #include "parser.h"
 
-void createFiles(const json& structure, tableJson& tjs) { // создание полной директории и файлов
-    tNode* tableHead = nullptr; // указатель на первый узел списка таблиц
-    tNode* tableTail = nullptr; // указатель на последний узел списка таблиц
-
-    for (const auto& table : structure.items()) { // цикл по всем элементам в структуре json
-        tNode* newTable = new tNode{table.key(), nullptr, nullptr}; // создаём таблицу
-        string lock = table.key() + "_lock.txt"; // создаём файл блокировки
-        ofstream file(lock);
-        if (!file.is_open()) {
-            cerr << "Не удалось открыть файл." << endl;
-        }
-        file << "unlocked"; // по умолчанию разблокировано
-        file.close();
-        if (tableHead == nullptr) { // добавляем таблицу в список
-            tableHead = newTable; // если список пустой, таблица будет и первой, и последней одновременно
-            tableTail = newTable;
-        }
-        else {
-            tableTail->next = newTable; // иначе добавляем новую таблицу в конец списка
-            tableTail = newTable; 
-        }
-
-        string keyColumn = table.key() + "_pk"; // название специальной колонки
-        Node* column_pk = new Node{keyColumn, nullptr}; // создаём список, где специальная колонка - первая
-        newTable->column = column_pk; // присоединяем список колонок к таблице
-
-        string csvFileName = table.key() + ".csv"; // создаём csv файл
-        ofstream csvFile(csvFileName);
-        if (!csvFile.is_open()) {
-            cerr << "Не удалось создать файл: " << csvFileName << endl;
-            return;
-        }
-        csvFile << keyColumn << ",";
-        const auto& columns = table.value(); // запись колонок в файл, объект columns = названия
-        for (size_t i = 0; i < columns.size(); i++) { 
-            csvFile << columns[i].get<string>(); // записываем названия без кавычек
-            Node* newColumn = new Node{columns[i], nullptr}; // создаём новую колонку
-            if (newTable->column == nullptr) { // если в таблице ещё нет колонок
-                newTable->column = newColumn;
-            }
-            else {
-                Node* lastColumn = newTable->column;
-                while (lastColumn->next != nullptr) { // ищем последнюю колонку
-                    lastColumn = lastColumn->next;
-                }
-                lastColumn->next = newColumn; // добавляем новую колонку в конец
-            }
-            if (i < columns.size() - 1) { // для последнего значения не нужна запятая
-                csvFile << ",";
-            }
-        }
-        csvFile << endl;
-        csvFile.close();
-        cout << "Создан файл: " << csvFileName << endl;
-
-        string pk = keyColumn + "_sequence.txt"; // создаём файл для хранения уникального первичного ключа
-        ofstream filePk(pk);
-        if (!filePk.is_open()) {
-            cerr << "Не удалось открыть файл.\n";
-        }
-        filePk << "0";
-        filePk.close();
-    }
-    tjs.tablehead = tableHead;
+void removeDir(const filesystem::path& dirPath) {
+  if (filesystem::exists(dirPath)) {
+    filesystem::remove_all(dirPath);
+  }
 }
 
-void parsing(tableJson& tjs) { // парсинг схемы
-    string filename = "schema.json"; // название файла
-    ifstream file(filename); // открываем
-    if (!file.is_open()) {
-        cerr << "Не удалось открыть файл: " << filename << endl;
+void createFiles(const filesystem::path& schemePath, const json& jsonStruct, JsonTable& jstable) {
+  Tables* head = nullptr;
+  Tables* tail = nullptr;
+
+  for (const auto& table : jsonStruct.items()) {
+    filesystem::path tableDir = schemePath / table.key();
+    filesystem::create_directory(tableDir);
+    if (!filesystem::exists(tableDir)) {
+        cerr << "Не удалось создать директорию: " << tableDir << endl;
         return;
     }
-    string json_content; // содержимое
-    string line; // строка
-    while(getline(file, line)) { // чтение из файла
-        json_content += line;
+
+    Tables* newTable = new Tables{table.key(), nullptr, nullptr};
+
+    if (head == nullptr) {
+      head = newTable;
+      tail = newTable;
     }
+    else {
+      tail->next = newTable;
+      tail = newTable;
+    }
+
+    filesystem::path lockDir = tableDir / (table.key() + "_lock.txt");
+    ofstream file(lockDir);
+    if (!file.is_open()) {
+      cerr << "Не удалось открыть файл." << endl;
+      return;
+    }
+    file << "unlocked";
     file.close();
 
-    json jparsed; // хранение результата парсинга
-    jparsed = json::parse(json_content); // парсинг в объект jparsed
+    string pkColumn = table.key() + "_pk";
+    Node* firstColumn = new Node{pkColumn, nullptr};
 
-    tjs.schemeName = jparsed["name"]; // извлекаем имя схемы
-    if (jparsed.contains("structure")) { // наполнение директории
-        createFiles(jparsed["structure"], tjs);
+    Node* headColumn = firstColumn;
+    Node* tailColumn = firstColumn;
+
+    filesystem::path csvDir = tableDir / "1.csv";
+    ofstream file(csvDir);
+    if (!file.is_open()) {
+      cerr << "Не удалось открыть файл." << endl;
+      return;
     }
-    tjs.tableSize = jparsed["tuples_limit"]; // вытаскиваем ограничения по строкам
+    file << pkColumn << ",";
+    
+    const auto& columns = table.value();
+    for (size_t i = 0; i < columns.size(); i++) {
+      file << columns[i].get<string>();
+      Node* newColumn = new Node{columns[i].get<string>(), nullptr};
+      tailColumn->next = newColumn;
+      tailColumn = newColumn;
+      if (i < columns.size() - 1) {
+        file << ",";
+      }
+    }
+    file << endl;
+    file.close();
+
+    newTable->column = headColumn;
+
+    string sequence = pkColumn + "_sequence.txt";
+    ofstream file(sequence);
+    if (!file.is_open()) {
+      cerr << "Не удалось открыть файл." << endl;
+      return;
+    }
+    file << "0";
+    file.close();
+  }
+  jstable.head = head;
+}
+
+void parser(JsonTable& jstab) {
+    ifstream file("schema.json");
+    if (!file.is_open()) {
+        cerr << "Не удалось открыть файл: schema.json" << endl;
+        return;
+    }
+    
+    json jspars;
+    file >> jspars;
+    file.close();
+
+    jstab.scheme = jspars["name"];
+    filesystem::path schemePath = filesystem::current_path() / jstab.scheme;
+    removeDir(schemePath); //Удаляем директорию с прошлого запуска
+    filesystem::create_directory(schemePath);
+    if (!filesystem::exists(schemePath)) {
+        cerr << "Не удалось создать директорию: " << schemePath << endl;
+        return;
+    }
+
+    if (jspars.contains("structure")) {
+        createFiles(schemePath, jspars["structure"], jstab);
+    }
+
+    jstab.rowsCount = jspars["tuples_limit"];
 }
