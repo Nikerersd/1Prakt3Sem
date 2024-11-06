@@ -49,3 +49,35 @@ bool tableExist(string table, Tables* head) {
     return false;
 }
 
+bool columnExist(string table, string columnName, Tables* head) {
+    Tables* current = head;
+    while (current != nullptr) {
+        if (current->name == table) {
+            Node* currentColumn = current->column;
+            while (current != nullptr) {
+                if (currentColumn->data == columnName) {
+                    return true;
+                }
+                currentColumn = currentColumn->next;
+            }
+        }
+        current = current->next;
+    }
+    return false;
+}
+
+void splitDot(string message, string& table, string& column) {
+    bool dot = false;
+    for (size_t i=0; i < message.size(); i++) {
+        if (message[i] == '.') {
+            dot = true;
+            i++;
+        }
+        if (!dot) table += message[i];
+        else column += message[i];
+    }
+    if (!dot) {
+        cerr << "Неверный ввод данных." << endl;
+        return;
+    }
+}

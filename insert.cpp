@@ -111,6 +111,10 @@ void insert(const string& command, JsonTable& jstab) {
             while (values[i]!='\'') {
                 csvFile << values[i];
                 i++;
+                if (values[i] == ',') {
+                    cerr << "Не все значения выделены кавычками." << endl;
+                    exit(-1);
+                }
             }
             if (values[i+1] != ')') {
                 csvFile << ",";
