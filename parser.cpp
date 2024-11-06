@@ -46,36 +46,36 @@ void createFiles(const filesystem::path& schemePath, const json& jsonStruct, Jso
     Node* tailColumn = firstColumn;
 
     filesystem::path csvDir = tableDir / "1.csv";
-    ofstream file(csvDir);
-    if (!file.is_open()) {
+    ofstream csvFile(csvDir);
+    if (!csvFile.is_open()) {
       cerr << "Не удалось открыть файл." << endl;
       return;
     }
-    file << pkColumn << ",";
+    csvFile << pkColumn << ",";
     
     const auto& columns = table.value();
     for (size_t i = 0; i < columns.size(); i++) {
-      file << columns[i].get<string>();
+      csvFile << columns[i].get<string>();
       Node* newColumn = new Node{columns[i].get<string>(), nullptr};
       tailColumn->next = newColumn;
       tailColumn = newColumn;
       if (i < columns.size() - 1) {
-        file << ",";
+        csvFile << ",";
       }
     }
-    file << endl;
-    file.close();
+    csvFile << endl;
+    csvFile.close();
 
     newTable->column = headColumn;
 
-    string sequence = pkColumn + "_sequence.txt";
-    ofstream file(sequence);
-    if (!file.is_open()) {
+    filesystem::path sequence = tableDir / (pkColumn + "_sequence.txt");
+    ofstream seqFile(sequence);
+    if (!seqFile.is_open()) {
       cerr << "Не удалось открыть файл." << endl;
       return;
     }
-    file << "0";
-    file.close();
+    seqFile << "0";
+    seqFile.close();
   }
   jstable.head = head;
 }

@@ -14,7 +14,7 @@ struct Node {
 };
 
 struct Tables {
-    string table; //Название таблицы
+    string name; //Название таблицы
     Node* column;
     Tables* next; // Следующая таблица
 };
