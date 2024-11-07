@@ -108,7 +108,7 @@ void select(string command, JsonTable& jstab) {
 
             iss3 >> message3;
             if (message3 != "AND" && message3 != "OR") {
-                outputWithCondSingleT(jstab, tableCond1, tableCond2, columnCond1, columnCond2);
+                condSingleT(jstab, tableCond1, tableCond2, columnCond1, columnCond2);
                 crossJoinDepend(table1, column1, table2, column2, jstab);
                 size_t icsv = 1;
                 while (true) {
@@ -148,7 +148,7 @@ void select(string command, JsonTable& jstab) {
                         sCond += message3[i];
                     }
                 }
-                outputWithCondAnd(jstab, tableCond1, tableCond2, columnCond1, columnCond2, tableCond3, columnCond3, sCond);
+                condAnd(jstab, tableCond1, tableCond2, columnCond1, columnCond2, tableCond3, columnCond3, sCond);
                 crossJoinDepend(table1, column1, table2, column2, jstab);
                 size_t icsv = 1;
                 while (true) {
@@ -188,7 +188,7 @@ void select(string command, JsonTable& jstab) {
                         sCond += message3[i];
                     }
                 }
-                outputWithCondOr(jstab, tableCond1, tableCond2, columnCond1, columnCond2, tableCond3, columnCond3, sCond);
+                condOr(jstab, tableCond1, tableCond2, columnCond1, columnCond2, tableCond3, columnCond3, sCond);
                 crossJoinDepend(table1, column1, table2, column2, jstab);
                 size_t icsv = 1;
                 while (true) {
@@ -216,7 +216,7 @@ void select(string command, JsonTable& jstab) {
             iss3 >> message3;
             if (message3 != "AND" && message3 != "OR") {
                 if (tableCond1 == table1) {
-                    outputWithCondSingleS(jstab, tableCond1, table2, columnCond1, sCond);
+                    condSingleS(jstab, tableCond1, table2, columnCond1, sCond);
                     crossJoinDepend(table1, column1, table2, column2, jstab);
                     size_t icsv = 1;
                     while (true) {
@@ -229,7 +229,7 @@ void select(string command, JsonTable& jstab) {
                     }
                 }
                 if (tableCond1 == table2) {
-                    outputWithCondSingleS(jstab, tableCond1, table1, columnCond1, sCond);
+                    condSingleS(jstab, tableCond1, table1, columnCond1, sCond);
                     crossJoinDepend(table1, column1, table2, column2, jstab);
                     size_t icsv = 1;
                     while (true) {
@@ -280,7 +280,7 @@ void select(string command, JsonTable& jstab) {
                     return;
                 }
 
-                outputWithCondAnd(jstab, tableCond2, tableCond3, columnCond2, columnCond3, tableCond1, columnCond1, sCond);
+                condAnd(jstab, tableCond2, tableCond3, columnCond2, columnCond3, tableCond1, columnCond1, sCond);
                 crossJoinDepend(table1, column1, table2, column2, jstab);
                 size_t icsv = 1;
                 while (true) {
@@ -330,7 +330,7 @@ void select(string command, JsonTable& jstab) {
                     return;
                 }
 
-                outputWithCondOr(jstab, tableCond2, tableCond3, columnCond2, columnCond3, tableCond1, columnCond1, sCond);
+                condOr(jstab, tableCond2, tableCond3, columnCond2, columnCond3, tableCond1, columnCond1, sCond);
                 crossJoinDepend(table1, column1, table2, column2, jstab);
                 size_t icsv = 1;
                 while (true) {

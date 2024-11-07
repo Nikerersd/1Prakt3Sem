@@ -171,7 +171,7 @@ void crossJoinDepend(string table1, string column1, string table2, string column
     }
 }
 
-void outputWithCondSingleT(JsonTable& jstab, string tableCond1, string tableCond2, string columnCond1, string columnCond2) {
+void condSingleT(JsonTable& jstab, string tableCond1, string tableCond2, string columnCond1, string columnCond2) {
     size_t i = 0;
     while (true) {
         size_t icsv = i/jstab.rowsCount + 1;
@@ -268,7 +268,7 @@ void outputWithCondSingleT(JsonTable& jstab, string tableCond1, string tableCond
     }
 }
 
-void outputWithCondSingleS(JsonTable& jstab, string tableCond1, string table, string columnCond1, string sCond) {
+void condSingleS(JsonTable& jstab, string tableCond1, string table, string columnCond1, string sCond) {
     size_t i = 0;
     while (true) {
         size_t icsv = i/jstab.rowsCount + 1;
@@ -363,7 +363,7 @@ void outputWithCondSingleS(JsonTable& jstab, string tableCond1, string table, st
     }
 }
 
-void outputWithCondAnd(JsonTable& jstab, string tableCond1, string tableCond2, string columnCond1, string columnCond2, string tableCond3, string columnCond3, string sCond) {
+void condAnd(JsonTable& jstab, string tableCond1, string tableCond2, string columnCond1, string columnCond2, string tableCond3, string columnCond3, string sCond) {
     size_t i = 0;
     while (true) {
         size_t icsv = i/jstab.rowsCount + 1;
@@ -460,7 +460,7 @@ void outputWithCondAnd(JsonTable& jstab, string tableCond1, string tableCond2, s
     }
 }
 
-void outputWithCondOr(JsonTable& jstab, string tableCond1, string tableCond2, string columnCond1, string columnCond2, string tableCond3, string columnCond3, string sCond) {
+void condOr(JsonTable& jstab, string tableCond1, string tableCond2, string columnCond1, string columnCond2, string tableCond3, string columnCond3, string sCond) {
     size_t i = 0;
     while (true) {
         size_t icsv = i/jstab.rowsCount + 1;

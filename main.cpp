@@ -34,9 +34,5 @@ int main() {
         if (firstMessage == "EXIT") {
             return 1;
         }
-        else {
-            cout << "Неверный ввод данных." << endl;
-            continue;
-        }
     }
 }
