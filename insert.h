@@ -7,4 +7,4 @@
 using namespace std;
 
 void cpColumns(const filesystem::path& fileIn, const filesystem::path& fileOut);
-void insert(const string& command, JsonTable& jstab);
+void insert(string command, JsonTable& jstab);

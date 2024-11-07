@@ -1,3 +1,4 @@
+#include <iostream>
 #include "insert.h"
 
 void cpColumns(const filesystem::path& fileIn, const filesystem::path& fileOut) {
@@ -18,7 +19,7 @@ void cpColumns(const filesystem::path& fileIn, const filesystem::path& fileOut) 
     fileO.close();
 }
 
-void insert(const string& command, JsonTable& jstab) {
+void insert(string command, JsonTable& jstab) {
     istringstream iss(command);
     string message;
     iss >> message;
@@ -51,6 +52,18 @@ void insert(const string& command, JsonTable& jstab) {
     if (values.front() != '(' || values.back()!= ')') {
         cerr << "Неверный ввод данных." << endl;
         return;
+    }
+    for (size_t i=1; i < values.size(); i++) {
+        if (values[i] == '\'') {
+            i++;
+            while (values[i]!='\'') {
+                i++;
+                if (values[i] == ',') {
+                    cerr << "Не все значения выделены кавычками." << endl;
+                    return;
+                }
+            }
+        }
     }
 
     locker(table, jstab.scheme);
@@ -104,17 +117,13 @@ void insert(const string& command, JsonTable& jstab) {
       cerr << "Не удалось открыть файл: " << csvEndPath << endl;
       return;
     }
-    csvFile << primKey << ",";
+    csvFile << to_string(primKey) << ",";
     for (size_t i=1; i < values.size(); i++) {
         if (values[i] == '\'') {
             i++;
             while (values[i]!='\'') {
                 csvFile << values[i];
                 i++;
-                if (values[i] == ',') {
-                    cerr << "Не все значения выделены кавычками." << endl;
-                    exit(-1);
-                }
             }
             if (values[i+1] != ')') {
                 csvFile << ",";

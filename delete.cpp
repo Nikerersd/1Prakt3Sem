@@ -1,7 +1,7 @@
 #include <iostream>
 #include "delete.h"
 
-void deleteRows(const string& command, JsonTable& jstab) {
+void deleteRows(string command, JsonTable& jstab) {
     istringstream iss(command);
     string message;
     iss >> message;
@@ -22,6 +22,7 @@ void deleteRows(const string& command, JsonTable& jstab) {
         return;
     }
     string command2;
+    cout << "<< ";
     getline(cin, command2);
     istringstream iss2(command2);
     string message2;
@@ -33,7 +34,7 @@ void deleteRows(const string& command, JsonTable& jstab) {
     iss2 >> message2;
     string table2;
     string column;
-    splitDot(message2, table2, column);
+    separateDot(message2, table2, column);
     if (table2 != table) {
         cerr << "Неверный ввод данных." << endl;
         return;
